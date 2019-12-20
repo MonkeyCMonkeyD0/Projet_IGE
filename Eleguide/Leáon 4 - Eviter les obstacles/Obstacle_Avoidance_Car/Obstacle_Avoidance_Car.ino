@@ -89,44 +89,5 @@ void setup() {
 
 void loop() { 
     myservo.write(90);  //setservo position according to scaled value
-    delay(500); 
-    middleDistance = Distance_test();
-
-    if(middleDistance <= 20) {     
-      stop();
-      delay(500);                         
-      myservo.write(10);          
-      delay(1000);      
-      rightDistance = Distance_test();
-      
-      delay(500);
-      myservo.write(90);              
-      delay(1000);                                                  
-      myservo.write(180);              
-      delay(1000); 
-      leftDistance = Distance_test();
-      
-      delay(500);
-      myservo.write(90);              
-      delay(1000);
-      if(rightDistance > leftDistance) {
-        right();
-        delay(360);
-      }
-      else if(rightDistance < leftDistance) {
-        left();
-        delay(360);
-      }
-      else if((rightDistance <= 20) || (leftDistance <= 20)) {
-        back();
-        delay(180);
-      }
-      else {
-        forward();
-      }
-    }  
-    else {
-        forward();
-    }                     
+                  
 }
-

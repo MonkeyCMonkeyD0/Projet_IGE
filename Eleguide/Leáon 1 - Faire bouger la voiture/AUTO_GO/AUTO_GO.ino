@@ -23,10 +23,10 @@ void stop(){
   digitalWrite(ENA,LOW); //enable L298n A channel
   digitalWrite(ENB,LOW); //enable L298n B channel
   digitalWrite(IN1,LOW); //set IN1 hight level
-  digitalWrite(IN2,LOW);  //set IN2 low level
-  digitalWrite(IN3,LOW);  //set IN3 low level
+  digitalWrite(IN2,LOW); //set IN2 low level
+  digitalWrite(IN3,LOW); //set IN3 low level
   digitalWrite(IN4,LOW); //set IN4 hight level
-  Serial.println("Stop");//send message to serial monitor
+  Serial.println("Stop"); //send message to serial monitor
 }
 
 
