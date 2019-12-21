@@ -18,7 +18,6 @@ void stop(){
 
 
 void forward(float cm, int speed){
-  
   analogWrite(ENB,speed);
   analogWrite(ENA,speed);
   digitalWrite(IN1,LOW);
@@ -54,7 +53,6 @@ void left(float deg){
 }
 
 void right(float deg){
-  
   digitalWrite(ENA,HIGH);
   digitalWrite(ENB,HIGH);
   digitalWrite(IN1,HIGH);
@@ -67,19 +65,24 @@ void right(float deg){
 
 
 void setup() {
-  Serial.begin(9600);//open serial and set the baudrate
-  pinMode(IN1,OUTPUT);//before using io pin, pin mode must be set first 
-  pinMode(IN2,OUTPUT);
-  pinMode(IN3,OUTPUT);
-  pinMode(IN4,OUTPUT);
-  pinMode(ENA,OUTPUT);
-  pinMode(ENB,OUTPUT);
-  stop();
-  delay(1000);
-  forward(20,200);
+  Serial.begin(9600); //open serial and set the baudrate
+  pinMode(IN1,OUTPUT); //before using io pin, pin mode must be set first 
+  pinMode(IN2,OUTPUT); //before using io pin, pin mode must be set first 
+  pinMode(IN3,OUTPUT); //before using io pin, pin mode must be set first 
+  pinMode(IN4,OUTPUT); //before using io pin, pin mode must be set first 
+  pinMode(ENA,OUTPUT); //before using io pin, pin mode must be set first 
+  pinMode(ENB,OUTPUT); //before using io pin, pin mode must be set first 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  forward(50,150);
   stop();
+  forward(20,255);
+  stop();
+  right(360);
+  stop();
+  backward(70,80);
+  stop();
+  delay(20000);
 }
