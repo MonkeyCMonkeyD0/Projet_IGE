@@ -1,5 +1,5 @@
-// servo left max = 170 deg
-// servo right max = 0 deg
+// servo left = 170 deg
+// servo right = 0 deg
 // servo middle = 85 deg
 
 #include <Servo.h>
@@ -7,11 +7,12 @@
 #define Echo A4
 #define Trig A5
 #define Servo_center_pos 85
-
+#define nb_mesure 5
 
 Servo servo;
 float dist_l, dist_c, dist_r;
-int ecart = 90;
+int ecart = 30;
+
 
 void servo_left(int d) {
   servo.write(Servo_center_pos + ecart);
@@ -42,19 +43,53 @@ float mesure_distance() {
   Serial.print("Distance = ");
   Serial.println(Fdistance);
   return Fdistance;
-} 
+}
+
+void swap(float tab[], int a, int b){
+  float tmp = tab[a];
+  tab[a] = tab[b];
+  tab[b] = tmp;
+}
+
+void sort_tab(float tab[]){
+  for (int i = 0; i < nb_mesure; ++i){
+    int p = i;
+    for (int j = i; j < nb_mesure; ++j)
+      if (tab[j] < tab[p])
+        p = j;
+    swap(tab,i,p);
+  }
+}
+
+float get_median(float tab[]){
+  sort_tab(tab);
+  return (float) tab[(int) nb_mesure/2];
+}
 
 void set_distances() {
-    int t = 6*ecart;
+    int t = 5*ecart;
+    float tab[nb_mesure];
     servo_left(t);
-    dist_l = mesure_distance();
     delay(t);
+    for (int i = 0; i < nb_mesure; i++){
+      tab[i] = mesure_distance();
+      delay(5);
+    }
+    dist_l = get_median(tab);
     servo_center(t);
-    dist_c = mesure_distance();
     delay(t);
+    for (int i = 0; i < nb_mesure; i++){
+      tab[i] = mesure_distance();
+      delay(5);
+    }
+    dist_c = get_median(tab);
     servo_right(t);
-    dist_r = mesure_distance();
     delay(t);
+    for (int i = 0; i < nb_mesure; i++){
+      tab[i] = mesure_distance();
+      delay(5);
+    }
+    dist_r = get_median(tab);
     Serial.print("Distance left = ");
     Serial.print(dist_l);
     Serial.print(", center = ");
@@ -79,6 +114,6 @@ void setup() {
 
 void loop() {
   set_distances();
-//  delay(1000);
-  ecart = (ecart < 20) ? ecart : ecart / 1.5;
+  delay(1000);
+//  ecart = (ecart < 20) ? ecart : ecart / 1.5;
 }
