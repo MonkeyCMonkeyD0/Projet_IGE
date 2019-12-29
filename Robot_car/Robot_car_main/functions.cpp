@@ -56,7 +56,9 @@ void left (float deg) { // turn car left of X deg
 	digitalWrite(IN2,HIGH);
 	digitalWrite(IN3,LOW);
 	digitalWrite(IN4,HIGH); 
-	Serial.println("Left");
+	Serial.print("turn Left for ");
+	Serial.print(deg);
+	Serial.println(" degres");
 	delay(deg*43/9);
 }
 
@@ -67,34 +69,32 @@ void right (float deg) { // turn car right of X deg
 	digitalWrite(IN2,LOW);
 	digitalWrite(IN3,HIGH);
 	digitalWrite(IN4,LOW);
-	Serial.println("Right");
+	Serial.print("turn Right for ");
+	Serial.print(deg);
+	Serial.println(" degres");
 	delay(deg*43/9);
 }
 
-void servo_left (int d) { // move servo to left position using d milliseconds
+void servo_left() { // move servo to left position using d milliseconds
 	servo.write(Servo_center_pos + ecart);
 	Serial.println("Servo Left");
-	delay(d);
 }
 
-void servo_center (int d) { // move servo to center position using d milliseconds
+void servo_center() { // move servo to center position using d milliseconds
 	servo.write(Servo_center_pos);
 	Serial.println("Servo Center");
-	delay(d);
 }
 
-void servo_right (int d) { // move servo to right position using d milliseconds
+void servo_right() { // move servo to right position using d milliseconds
 	servo.write(Servo_center_pos - ecart);
 	Serial.println("Servo Right");
-	delay(d);
 }
 
-void servo_at (int deg, int dt) { // move servo to X deg using d milliseconds
+void servo_at (unsigned int deg) { // move servo to X deg using d milliseconds
 	servo.write(deg);
 	Serial.print("Servo @ ");
 	Serial.print(deg);
 	Serial.println(" degres");
-	delay(dt);
 }
 
 float mesure_distance() { // mesure distance to nearest object straight ahead
@@ -134,19 +134,22 @@ float get_median (float tab[]) { // get median of an array
 void set_distances() { // set left,center,right distances to object
 	int t = 15*ecart;
 	float tab[nb_mesure];
-	servo_left(t);
+	servo_left();
+	delay(t);
 	for (int i = 0; i < nb_mesure; i++){
 		tab[i] = mesure_distance();
 		delay(5);
 	}
 	dist_l = get_median(tab);
-	servo_center(t);
+	servo_center();
+	delay(t);
 	for (int i = 0; i < nb_mesure; i++){
 		tab[i] = mesure_distance();
 		delay(5);
 	}
 	dist_c = get_median(tab);
-	servo_right(t);
+	servo_right();
+	delay(t);
 	for (int i = 0; i < nb_mesure; i++){
 		tab[i] = mesure_distance();
 		delay(5);
@@ -165,7 +168,8 @@ void set_distances2() { // set the direction & distance to nearest object
 	float tab[nb_mesure];
 	dist = 3000.0;
 	for (int i = Servo_center_pos - ecart; i <= Servo_center_pos + ecart; i += 25){
-		servo_at(i,dt);
+		servo_at(i);
+		delay(dt);
 		
 		for (int j = 0; j < nb_mesure; j++){
 			tab[j] = mesure_distance();
@@ -187,7 +191,7 @@ void set_distances2() { // set the direction & distance to nearest object
 void face_object() { // move servo to face nearest object
 	set_distances2();
 	
-	servo_at(deg,0);
+	servo_at(deg);
 
 	if (deg - Servo_center_pos >= 0){
 		Serial.print(deg - Servo_center_pos);
@@ -195,6 +199,32 @@ void face_object() { // move servo to face nearest object
 	} else {
 		Serial.print(Servo_center_pos - deg);
 		Serial.println(" degres right -----------------------");
+	}
+
+	if (dist > dist_max) {
+		Serial.print("moving forward (cm) ");
+		Serial.println(dist-dist_max);
+	} else if (dist < dist_min) {
+		Serial.print("moving backward (cm) ");
+		Serial.println(dist-dist_min);
+	}
+}
+
+void turn_to_face_object() { // move car to face nearest object
+	stop();
+	set_distances2();
+
+	// servo_center();
+	servo_at(deg);
+
+	if ((int) deg - (int) Servo_center_pos >= 0){
+		Serial.print(deg - Servo_center_pos);
+		Serial.println(" degres left ------------------------");
+		left((float) deg);
+	} else {
+		Serial.print(Servo_center_pos - deg);
+		Serial.println(" degres right -----------------------");
+		right((float) deg);
 	}
 
 	if (dist > dist_max) {

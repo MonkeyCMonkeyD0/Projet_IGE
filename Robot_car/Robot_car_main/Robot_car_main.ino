@@ -9,7 +9,7 @@ extern const unsigned int
   ecart = 75,
   dist_min = 8,
   dist_max = 12,
-  nb_mesure = 10;
+  nb_mesure = 5;
 
 /* -----------------------
   servo left = 170 deg
@@ -29,10 +29,12 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
-  servo_center(50);
+  servo_center();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+  delay(5000);
+  turn_to_face_object();
+  delay(5000);
 }
