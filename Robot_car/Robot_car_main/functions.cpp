@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include <Servo.h>
+#include <math.h>
 #include "functions.h"
 
 /* -----------------------
@@ -188,7 +189,29 @@ void set_distances2() { // set the direction & distance to nearest object
 	Serial.println(" degres");
 }
 
-void face_object() { // move servo to face nearest object
+float rad_to_deg (float x) {
+	return x * 180 / M_PI;
+}
+
+float deg_to_rad (float x) {
+	return x * M_PI / 180;
+}
+
+float get_car_distance (float dist, float angle) { // return the distance between the object & the center of the car
+	angle = deg_to_rad(angle);
+	Serial.print("car @ cm = ");
+	Serial.println(sqrt(dist * (dist - 18 * cos(angle)) + 81));
+	return sqrt(dist * (dist - 18 * cos(angle)) + 81);
+}
+
+float get_car_angle (float dist, float angle) { // return the angle between the object and the center of the car (relative to side)(deg in [0,180])
+	float n_angle = rad_to_deg(asin(dist * sin(deg_to_rad(angle)) / get_car_distance(dist,angle)));
+	Serial.print("car angle deg = ");
+	Serial.println(n_angle);
+	return n_angle;
+}
+
+void turn_servo_to_face_object() { // move servo to face nearest object
 	set_distances2();
 	
 	servo_at(deg);
@@ -214,24 +237,50 @@ void turn_to_face_object() { // move car to face nearest object
 	stop();
 	set_distances2();
 
-	// servo_center();
-	servo_at(deg);
+	servo_center();
+	// servo_at(deg);
 
 	if ((int) deg - (int) Servo_center_pos >= 0){
-		Serial.print(deg - Servo_center_pos);
+		float angle = get_car_angle(dist,(float) 180 - deg + Servo_center_pos);
+		dist = get_car_distance(dist,(float) 180 - deg + Servo_center_pos);
+		Serial.print(angle);
 		Serial.println(" degres left ------------------------");
-		left((float) deg);
+		left(angle);
 	} else {
-		Serial.print(Servo_center_pos - deg);
+		float angle = get_car_angle(dist,(float) 180 + deg - Servo_center_pos);
+		dist = get_car_distance(dist,(float) 180 + deg - Servo_center_pos);
+		Serial.print(angle);
 		Serial.println(" degres right -----------------------");
-		right((float) deg);
+		right(angle);
 	}
+	stop();
 
 	if (dist > dist_max) {
 		Serial.print("moving forward (cm) ");
-		Serial.println(dist-dist_max);
+		Serial.println(dist - dist_max);
+		forward(dist - dist_max, 100);
 	} else if (dist < dist_min) {
 		Serial.print("moving backward (cm) ");
-		Serial.println(dist-dist_min);
+		Serial.println(dist_min - dist);
+		backward(dist_min - dist, 100);
 	}
+	stop();
+}
+
+void debug() {
+	// Serial.print("90 deg to rad = ");
+	// Serial.println(deg_to_rad(90));
+	// Serial.print("1.57 rad to deg = ");
+	// Serial.println(rad_to_deg(1.57));
+
+	// Serial.println("car distance to object @ 10cm of detector and @ 180deg : ");
+	// Serial.println(get_car_distance(10,180));
+
+	// for (int i = 0; i < 18; ++i) {
+	// 	Serial.print("car angle to object @ 10cm of detector and @ deg ");
+	// 	Serial.println(i*10);
+	// 	get_car_angle(10,i*10);
+	// }
+
+
 }

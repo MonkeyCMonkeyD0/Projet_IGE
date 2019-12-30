@@ -33,8 +33,13 @@ void sort_tab (float tab[]);
 float get_median (float tab[]);
 void set_distances();
 void set_distances2();
-void face_object();
+float rad_to_deg (float x);
+float deg_to_rad (float x);
+float get_car_distance (float dist, float angle);
+float get_car_angle (float dist, float angle);
+void turn_servo_to_face_object();
 void turn_to_face_object();
+void debug();
 
 #ifdef __cplusplus
 } // extern "C"

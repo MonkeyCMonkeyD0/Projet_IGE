@@ -76,13 +76,10 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  forward(50,150);
   stop();
-  forward(20,255);
+  right(90);
   stop();
-  right(360);
-  stop();
-  backward(70,80);
+  left(90);
   stop();
   delay(20000);
 }
