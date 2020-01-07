@@ -5,15 +5,18 @@ extern float dist_l, dist_c, dist_r, dist;
 extern unsigned int deg;
 
 extern const unsigned int
-	Servo_center_pos = 85,
-	ecart = 75,
-	dist_min = 20,
-	dist_max = 22,
-	nb_mesure = 5;
+	Servo_center_pos = 87,
+	max_rotation = 70,
+  max_move = 30,
+	dist_min = 18,
+	dist_max = 20,
+	nb_mesure = 3,
+  nb_ecart = 5;
+
 
 /* -----------------------
-	servo left = 170 deg
-	servo middle = 85 deg
+	servo left = 172 deg
+	servo middle = 87 deg
 	servo right = 0 deg
 	 ----------------------- */
 
@@ -35,5 +38,5 @@ void setup() {
 void loop() {
 	// put your main code here, to run repeatedly:
   debug();
-	turn_to_face_object();
+  turn_to_face_object();
 }

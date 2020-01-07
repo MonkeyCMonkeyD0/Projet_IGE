@@ -3,6 +3,8 @@
 #include <math.h>
 #include "functions.h"
 
+using namespace std;
+
 /* -----------------------
 	servo left = 170 deg
 	servo middle = 85 deg
@@ -13,7 +15,7 @@ Servo servo;
 float dist_l, dist_c, dist_r, dist;
 unsigned int deg;
 
-extern const unsigned int Servo_center_pos, ecart, dist_min, dist_max, nb_mesure;
+extern const unsigned int Servo_center_pos, max_rotation, max_move, dist_min, dist_max, nb_mesure, nb_ecart;
 
 
 void stop() { // Stop car from moving
@@ -77,7 +79,7 @@ void right (float deg) { // turn car right of X deg
 }
 
 void servo_left() { // move servo to left position using d milliseconds
-	servo.write(Servo_center_pos + ecart);
+	servo.write(Servo_center_pos + max_rotation);
 	Serial.println("Servo Left");
 }
 
@@ -87,7 +89,7 @@ void servo_center() { // move servo to center position using d milliseconds
 }
 
 void servo_right() { // move servo to right position using d milliseconds
-	servo.write(Servo_center_pos - ecart);
+	servo.write(Servo_center_pos - max_rotation);
 	Serial.println("Servo Right");
 }
 
@@ -132,8 +134,21 @@ float get_median (float tab[]) { // get median of an array
 	return (float) tab[(int) nb_mesure/2];
 }
 
+int get_max (float ** tab) { // get the index of the max value of an array
+	float tmp_d = 0;
+	int tmp_i;
+	for (int i = 0; i < nb_ecart; ++i) {
+		if (tmp_d < tab[0][i] && tab[0][i] < 1000 && tab[1][i] < 1000) {
+			tmp_d = tab[0][i];
+			tmp_i = i;
+		}
+	}
+	return tmp_i;
+}
+
+
 void set_distances() { // set left,center,right distances to object
-	int t = 15*ecart;
+	int t = 15*max_rotation;
 	float tab[nb_mesure];
 	servo_left();
 	delay(t);
@@ -164,11 +179,11 @@ void set_distances() { // set left,center,right distances to object
 	Serial.println(dist_r);
 }
 
-void set_distances2() { // set the direction & distance to nearest object
-	int dt = 150;
+void set_distances2() { // set the direction & distance to nearest object (according to the servo position)
+	int dt = 100;
 	float tab[nb_mesure];
 	dist = 3000.0;
-	for (int i = Servo_center_pos - ecart; i <= Servo_center_pos + ecart; i += 25){
+	for (int i = Servo_center_pos - max_rotation; i <= Servo_center_pos + max_rotation; i += 25){
 		servo_at(i);
 		delay(dt);
 		
@@ -189,6 +204,54 @@ void set_distances2() { // set the direction & distance to nearest object
 	Serial.println(" degres");
 }
 
+void set_distances3() {
+	int dt = 100;
+	float ** mesures = new float*[2];
+	for (int i = 0; i < 2; ++i)
+		mesures[i] = new float[nb_ecart];
+	for (int j = 0; j < 2; ++j) {
+		for (int i = 0; i < nb_ecart; ++i){
+			servo_at((int) Servo_center_pos - max_rotation + (float) 2*i*max_rotation/(nb_ecart - 1));
+			float tab[nb_mesure];
+			delay(dt);
+
+			for (int k = 0; k < nb_mesure; k++){
+				tab[k] = mesure_distance();
+				delay(2);
+			}
+
+			mesures[j][i] = get_median(tab);
+		}
+		delay(dt);
+	}
+
+	Serial.println();
+	for (int i = 0; i < nb_ecart; ++i) {
+		Serial.print(mesures[0][i]);
+		Serial.print(" - ");
+		Serial.print(mesures[1][i]);
+		Serial.print(" - ");
+		mesures[0][i] = fabs(mesures[0][i] - mesures[1][i]);
+		Serial.println(mesures[0][i]);
+	}
+	Serial.println();
+
+	int index = get_max(mesures);
+	dist = (float) mesures[1][index];
+	deg = (int) Servo_center_pos - max_rotation + (float) 2*index*max_rotation/(nb_ecart - 1);
+
+	for (int i = 0; i < 2; ++i)
+		delete[] mesures[i];
+	delete[] mesures;
+
+	Serial.print("Objet @ ");
+	Serial.print(dist);
+	Serial.print(" cm & @ ");
+	Serial.print(deg);
+	Serial.println(" degres");
+}
+
+
 float rad_to_deg (float x) {
 	return x * 180 / M_PI;
 }
@@ -198,10 +261,11 @@ float deg_to_rad (float x) {
 }
 
 float get_car_distance (float dist, float angle) { // return the distance between the object & the center of the car
+	int distance_servo_center = 10; // distance in cm between detector and robot's center
 	angle = deg_to_rad(angle);
 	Serial.print("car @ cm = ");
-	Serial.println(sqrt(dist * (dist - 18 * cos(angle)) + 81));
-	return sqrt(dist * (dist - 18 * cos(angle)) + 81);
+	Serial.println(sqrt(dist * (dist - 2*distance_servo_center * cos(angle)) + distance_servo_center*distance_servo_center));
+	return sqrt(dist * (dist - 2*distance_servo_center * cos(angle)) + distance_servo_center*distance_servo_center);
 }
 
 float get_car_angle (float dist, float angle) { // return the angle between the object and the center of the car (relative to side)(deg in [0,180])
@@ -210,6 +274,7 @@ float get_car_angle (float dist, float angle) { // return the angle between the 
 	Serial.println(n_angle);
 	return n_angle;
 }
+
 
 void turn_servo_to_face_object() { // move servo to face nearest object
 	set_distances2();
@@ -236,9 +301,10 @@ void turn_servo_to_face_object() { // move servo to face nearest object
 void turn_to_face_object() { // move car to face nearest object
 	stop();
 	set_distances2();
+	// set_distances3();
 
-	servo_center();
-	// servo_at(deg);
+	// servo_center();
+	servo_at(deg);
 
 	if ((int) deg - (int) Servo_center_pos >= 0){
 		float angle = get_car_angle(dist,(float) 180 - deg + Servo_center_pos);
@@ -256,16 +322,19 @@ void turn_to_face_object() { // move car to face nearest object
 	stop();
 
 	if (dist > dist_max) {
+		float d = dist - dist_max < max_move ? dist - dist_max : max_move;
 		Serial.print("moving forward (cm) ");
-		Serial.println(dist - dist_max);
-		forward(dist - dist_max, 100);
+		Serial.println(d);
+		forward(d, 100);
 	} else if (dist < dist_min) {
+		float d = dist_max - dist < max_move ? dist_max - dist : max_move;
 		Serial.print("moving backward (cm) ");
-		Serial.println(dist_min - dist);
-		backward(dist_min - dist, 100);
+		Serial.println(d);
+		backward(d, 100);
 	}
 	stop();
 }
+
 
 void debug() {
 	// Serial.print("90 deg to rad = ");
@@ -282,5 +351,7 @@ void debug() {
 	// 	get_car_angle(10,i*10);
 	// }
 
+	// set_distances3();
 
+	// delay(10000);
 }

@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
-
 #include <Servo.h>
+
+using namespace std;
 
 #define ENA 5
 #define ENB 6
@@ -31,8 +32,10 @@ float mesure_distance();
 void swap (float tab[], unsigned int a, unsigned int b);
 void sort_tab (float tab[]);
 float get_median (float tab[]);
+int get_max(float ** tab);
 void set_distances();
 void set_distances2();
+void set_distances3();
 float rad_to_deg (float x);
 float deg_to_rad (float x);
 float get_car_distance (float dist, float angle);
