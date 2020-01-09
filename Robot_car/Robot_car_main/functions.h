@@ -17,6 +17,9 @@ using namespace std;
 #define IN4 11
 #define Echo A4
 #define Trig A5
+#define LT_R !digitalRead(10)
+#define LT_M !digitalRead(4)
+#define LT_L !digitalRead(2)
 
 
 void stop();

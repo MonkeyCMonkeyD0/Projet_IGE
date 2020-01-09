@@ -28,19 +28,7 @@ void stop() { // Stop car from moving
 	Serial.println("Stop"); //send message to serial monitor
 }
 
-void forward (float cm, int speed) { // move car forward of X cm at speed between 0 & 255
-	analogWrite(ENB,speed);
-	analogWrite(ENA,speed);
-	digitalWrite(IN1,LOW);
-	digitalWrite(IN2,HIGH);
-	digitalWrite(IN3,HIGH);
-	digitalWrite(IN4,LOW);
-	Serial.println("Forward");
-	delay(cm*14*255/speed);
-	stop();
-}
-
-void backward (float cm, int speed) { // move car backward of X cm at speed between 0 & 255
+void backward (float cm, int speed) { // move car backward of X cm at speed between 1 & 255
 	analogWrite(ENB,speed);
 	analogWrite(ENA,speed);
 	digitalWrite(IN1,HIGH);
@@ -49,6 +37,26 @@ void backward (float cm, int speed) { // move car backward of X cm at speed betw
 	digitalWrite(IN4,HIGH);
 	Serial.println("Backward");
 	delay(cm*14*255/speed);
+	stop();
+}
+
+void forward (float cm, int speed) { // move car forward of X cm at speed between 1 & 255
+	analogWrite(ENB,speed);
+	analogWrite(ENA,speed);
+	digitalWrite(IN1,LOW);
+	digitalWrite(IN2,HIGH);
+	digitalWrite(IN3,HIGH);
+	digitalWrite(IN4,LOW);
+	Serial.println("Forward");
+	unsigned long t = millis();
+	while (t + cm*14*255/speed > millis()) {
+		if (LT_M || LT_L || LT_L) {
+			stop();
+			backward(8,150);
+			right(180);
+			break;
+		}
+	}
 	stop();
 }
 
@@ -147,7 +155,7 @@ int get_max (float ** tab) { // get the index of the max value of an array
 }
 
 
-void set_distances() { // set left,center,right distances to object
+void set_distances1() { // set left,center,right distances to object
 	int t = 15*max_rotation;
 	float tab[nb_mesure];
 	servo_left();
@@ -180,21 +188,21 @@ void set_distances() { // set left,center,right distances to object
 }
 
 void set_distances2() { // set the direction & distance to nearest object (according to the servo position)
-	int dt = 14*max_rotation/nb_ecart;;
+	int dt = 10*max_rotation/nb_ecart;;
 	float tab[nb_mesure];
 	dist = 3000.0;
-	for (int i = Servo_center_pos - max_rotation; i <= Servo_center_pos + max_rotation; i += 25){
-		servo_at(i);
+	for (int i = 0; i < nb_ecart; ++i){
+		servo_at((int) Servo_center_pos - max_rotation + (float) 2*i*max_rotation/(nb_ecart - 1));
 		delay(dt);
 		
 		for (int j = 0; j < nb_mesure; j++){
-			delay(12);
+			delay(15);
 			tab[j] = mesure_distance();
 		}
 
 		if (dist >= get_median(tab)){
 			dist = get_median(tab);
-			deg = i;
+			deg = (int) Servo_center_pos - max_rotation + (float) 2*i*max_rotation/(nb_ecart - 1);
 		}
 	}
 	Serial.print("Objet @ ");
@@ -217,7 +225,7 @@ void set_distances3() {
 			delay(dt);
 
 			for (int k = 0; k < nb_mesure; k++){
-				delay(10);
+				delay(15);
 				tab[k] = mesure_distance();
 			}
 
@@ -305,8 +313,8 @@ void turn_to_face_object() { // move car to face nearest object
 	set_distances2();
 	// set_distances3();
 
-	// servo_center();
-	servo_at(deg);
+	servo_center();
+	// servo_at(deg);
 
 	if ((int) deg - (int) Servo_center_pos >= 0){
 		float angle = get_car_angle(dist,(float) 180 - deg + Servo_center_pos);

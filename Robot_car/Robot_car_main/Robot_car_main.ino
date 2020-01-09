@@ -6,12 +6,12 @@ extern unsigned int deg;
 
 extern const unsigned int
 	Servo_center_pos = 87,
-	max_rotation = 70,
+	max_rotation = 80,
   max_move = 30,
 	dist_min = 24,
 	dist_max = 25,
 	nb_mesure = 5,
-  nb_ecart = 5;
+  nb_ecart = 6;
 
 
 /* -----------------------
@@ -39,5 +39,5 @@ void loop() {
 	// put your main code here, to run repeatedly:
   debug();
   turn_to_face_object();
-//  delay(1000000);
+  delay(100000);
 }
