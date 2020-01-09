@@ -180,7 +180,7 @@ void set_distances() { // set left,center,right distances to object
 }
 
 void set_distances2() { // set the direction & distance to nearest object (according to the servo position)
-	int dt = 100;
+	int dt = 14*max_rotation/nb_ecart;;
 	float tab[nb_mesure];
 	dist = 3000.0;
 	for (int i = Servo_center_pos - max_rotation; i <= Servo_center_pos + max_rotation; i += 25){
@@ -188,8 +188,8 @@ void set_distances2() { // set the direction & distance to nearest object (accor
 		delay(dt);
 		
 		for (int j = 0; j < nb_mesure; j++){
+			delay(12);
 			tab[j] = mesure_distance();
-			delay(2);
 		}
 
 		if (dist >= get_median(tab)){
@@ -205,10 +205,11 @@ void set_distances2() { // set the direction & distance to nearest object (accor
 }
 
 void set_distances3() {
-	int dt = 100;
+	int dt = 10*max_rotation/nb_ecart;
 	float ** mesures = new float*[2];
 	for (int i = 0; i < 2; ++i)
 		mesures[i] = new float[nb_ecart];
+
 	for (int j = 0; j < 2; ++j) {
 		for (int i = 0; i < nb_ecart; ++i){
 			servo_at((int) Servo_center_pos - max_rotation + (float) 2*i*max_rotation/(nb_ecart - 1));
@@ -216,12 +217,13 @@ void set_distances3() {
 			delay(dt);
 
 			for (int k = 0; k < nb_mesure; k++){
+				delay(10);
 				tab[k] = mesure_distance();
-				delay(2);
 			}
 
 			mesures[j][i] = get_median(tab);
 		}
+		servo_at((int) Servo_center_pos - max_rotation);
 		delay(dt);
 	}
 

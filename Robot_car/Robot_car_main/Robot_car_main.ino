@@ -8,9 +8,9 @@ extern const unsigned int
 	Servo_center_pos = 87,
 	max_rotation = 70,
   max_move = 30,
-	dist_min = 18,
-	dist_max = 20,
-	nb_mesure = 3,
+	dist_min = 24,
+	dist_max = 25,
+	nb_mesure = 5,
   nb_ecart = 5;
 
 
@@ -39,4 +39,5 @@ void loop() {
 	// put your main code here, to run repeatedly:
   debug();
   turn_to_face_object();
+//  delay(1000000);
 }
