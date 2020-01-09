@@ -155,7 +155,7 @@ int get_max (float ** tab) { // get the index of the max value of an array
 }
 
 
-void set_distances1() { // set left,center,right distances to object
+void test_set_distances() { // set left,center,right distances to object
 	int t = 15*max_rotation;
 	float tab[nb_mesure];
 	servo_left();
@@ -205,6 +205,7 @@ void set_distances2() { // set the direction & distance to nearest object (accor
 			deg = (int) Servo_center_pos - max_rotation + (float) 2*i*max_rotation/(nb_ecart - 1);
 		}
 	}
+
 	Serial.print("Objet @ ");
 	Serial.print(dist);
 	Serial.print(" cm & @ ");
@@ -212,7 +213,7 @@ void set_distances2() { // set the direction & distance to nearest object (accor
 	Serial.println(" degres");
 }
 
-void set_distances3() {
+void set_distances3() { // set the direction & distance to the angle who's distance changed the most (try to follow moving object)
 	int dt = 10*max_rotation/nb_ecart;
 	float ** mesures = new float*[2];
 	for (int i = 0; i < 2; ++i)
@@ -286,7 +287,7 @@ float get_car_angle (float dist, float angle) { // return the angle between the 
 }
 
 
-void turn_servo_to_face_object() { // move servo to face nearest object
+void test_turn_servo_to_face_object() { // move servo to face nearest object
 	set_distances2();
 	
 	servo_at(deg);
