@@ -1,7 +1,9 @@
-# Projet_IGE 
+# Projet voiture IGE 
+### Projet voiture suivant un mouvement
 
-Projet 3 voiture suiveuse MAIN 3
+##### MAIN 3 - 2019/2020
 
-Elmhamdi Kenza
-Lafont-Trevisan Maxime
-Michel Tristan
+Auteurs:
+- Elmhamdi Kenza
+- Lafont-Trevisan Maxime
+- Michel Tristan
