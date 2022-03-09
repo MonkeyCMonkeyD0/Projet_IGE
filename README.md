@@ -4,6 +4,6 @@
 ##### MAIN 3 - 2019/2020
 
 Auteurs:
-- Elmhamdi Kenza
-- Lafont-Trevisan Maxime
-- Michel Tristan
+- EL M’HAMDI Kenza
+- LAFONT-TREVISAN Maxime
+- MICHEL Tristan
